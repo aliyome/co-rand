@@ -1,0 +1,19 @@
+<mat-form-field>
+  <input
+    matInput
+    type="text"
+    placeholder="名前を入力してください"
+    maxlength="30"
+    [formControl]="name"
+  />
+</mat-form-field>
+<button
+  type="button"
+  color="primary"
+  aria-label="Login button"
+  mat-button
+  (click)="login()"
+>
+  <mat-icon aria-label="login">input</mat-icon>
+  login
+</button>
