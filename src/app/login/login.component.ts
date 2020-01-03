@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -9,7 +10,7 @@ import { FormControl, Validators } from '@angular/forms';
 export class LoginComponent implements OnInit {
   name: FormControl;
 
-  constructor() {
+  constructor(private readonly afAuth: AngularFireAuth) {
     this.name = new FormControl('', [
       Validators.required,
       Validators.maxLength(30),
@@ -18,5 +19,12 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {}
 
-  login() {}
+  async login() {
+    if (this.afAuth.auth.currentUser) {
+      console.error(`ログイン済みです`);
+      return;
+    }
+    await this.afAuth.auth.signInAnonymously();
+    console.log(`ログインしました`);
+  }
 }
