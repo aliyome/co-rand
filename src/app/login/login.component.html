@@ -28,3 +28,23 @@
   <mat-icon aria-label="logout">input</mat-icon>
   logout
 </button>
+
+<mat-form-field>
+  <input
+    matInput
+    type="text"
+    placeholder="名前の変更"
+    maxlength="30"
+    [formControl]="name"
+  />
+</mat-form-field>
+<button
+  type="button"
+  color="primary"
+  aria-label="Change name button"
+  mat-button
+  (click)="changeName()"
+>
+  <mat-icon aria-label="change name">input</mat-icon>
+  change name
+</button>

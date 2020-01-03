@@ -8,13 +8,16 @@
     [opened]="(isHandset$ | async) === false"
   >
     <mat-toolbar>ログイン情報</mat-toolbar>
-    {{ user$ | async | json }}
-    未ログイン
-    <!-- <mat-nav-list>
-      <a mat-list-item href="#">Link 1</a>
-      <a mat-list-item href="#">Link 2</a>
-      <a mat-list-item href="#">Link 3</a>
-    </mat-nav-list> -->
+
+    <mat-nav-list *ngIf="userName$ | async; else nologin">
+      <a mat-list-item>{{ userName$ | async }}</a>
+      <!-- <a mat-list-item>Link 1</a>
+      <a mat-list-item>Link 2</a>
+      <a mat-list-item>Link 3</a> -->
+    </mat-nav-list>
+    <ng-template #nologin>
+      未ログイン
+    </ng-template>
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar color="primary">

@@ -47,14 +47,28 @@ export class LoginComponent implements OnInit {
     console.log(`ログインしました`);
   }
 
-  logout() {
+  async logout() {
     if (!this.afAuth.auth.currentUser) {
       console.warn(`ログインしていないのでログアウト不要`);
       return;
     }
     const uid = this.afAuth.auth.currentUser.uid;
     const doc = this.afStore.doc<AppUser>(`users/${uid}`);
-    doc.delete();
-    this.afAuth.auth.signOut();
+    await doc.delete();
+    await this.afAuth.auth.signOut();
+  }
+
+  async changeName() {
+    if (!this.afAuth.auth.currentUser) {
+      console.warn(`ログインしていないので名前は変更できません`);
+      return;
+    }
+    if (this.name.invalid) {
+      console.error(`名前を再入力してください`);
+      return;
+    }
+    const uid = this.afAuth.auth.currentUser.uid;
+    const doc = this.afStore.doc<AppUser>(`users/${uid}`);
+    await doc.update({ name: this.name.value });
   }
 }
