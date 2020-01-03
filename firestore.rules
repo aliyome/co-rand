@@ -1,8 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
+  // ユーザー認証の関数
+  function isAuthUser(auth, userId) {
+    return auth != null && auth.uid == userId // 認証があり、uidとuserIdが一致する
+  }
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+    match /users/{uid} {
+      allow read, write: if isAuthUser(request.auth, uid);
     }
   }
 }

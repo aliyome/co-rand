@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AppUser } from '../types/appuser';
 
 @Component({
   selector: 'app-login',
@@ -10,7 +12,10 @@ import { AngularFireAuth } from '@angular/fire/auth';
 export class LoginComponent implements OnInit {
   name: FormControl;
 
-  constructor(private readonly afAuth: AngularFireAuth) {
+  constructor(
+    private readonly afAuth: AngularFireAuth,
+    private readonly afStore: AngularFirestore,
+  ) {
     this.name = new FormControl('', [
       Validators.required,
       Validators.maxLength(30),
@@ -20,11 +25,36 @@ export class LoginComponent implements OnInit {
   ngOnInit() {}
 
   async login() {
+    if (this.name.invalid) {
+      console.error(`名前を再入力してください`);
+      return;
+    }
     if (this.afAuth.auth.currentUser) {
       console.error(`ログイン済みです`);
       return;
     }
-    await this.afAuth.auth.signInAnonymously();
+    const userCredential = await this.afAuth.auth.signInAnonymously();
+    if (!userCredential.user) {
+      console.error('uidが正しく取得できませんでした');
+      return;
+    }
+    const uid = userCredential.user.uid;
+    const doc = this.afStore.doc<AppUser>(`users/${uid}`);
+    doc.set({
+      uid,
+      name: this.name.value,
+    });
     console.log(`ログインしました`);
+  }
+
+  logout() {
+    if (!this.afAuth.auth.currentUser) {
+      console.warn(`ログインしていないのでログアウト不要`);
+      return;
+    }
+    const uid = this.afAuth.auth.currentUser.uid;
+    const doc = this.afStore.doc<AppUser>(`users/${uid}`);
+    doc.delete();
+    this.afAuth.auth.signOut();
   }
 }
