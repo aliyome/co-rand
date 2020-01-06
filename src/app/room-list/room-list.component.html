@@ -1,4 +1,6 @@
-<mat-action-list>
-  <button mat-list-item (click)="openDialog()">a</button>
+<mat-action-list *ngIf="roomList$ | async as roomList">
+  <button mat-list-item *ngFor="let r of roomList" (click)="openDialog(r)">
+    {{ r.name }}
+  </button>
   <button mat-list-item>a</button>
 </mat-action-list>

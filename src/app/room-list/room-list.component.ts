@@ -5,6 +5,10 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { RoomListItem } from '../types/room';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-room-list',
@@ -12,19 +16,32 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./room-list.component.css'],
 })
 export class RoomListComponent implements OnInit {
-  constructor(public dialog: MatDialog) {}
+  roomList$: Observable<RoomListItem[]>;
+
+  constructor(
+    public dialog: MatDialog,
+    private readonly afStore: AngularFirestore,
+    private readonly router: Router,
+  ) {
+    this.roomList$ = afStore
+      .collection<RoomListItem>(`room-list`)
+      .valueChanges();
+  }
 
   ngOnInit() {}
 
-  openDialog(): void {
-    const dialogRef = this.dialog.open(RoomDialogComponent, {
-      width: '250px',
-      data: { name: 'hoge' },
-    });
+  async openDialog(roomListItem: RoomListItem): Promise<void> {
+    if (roomListItem.password) {
+      const dialogRef = this.dialog.open(RoomDialogComponent, {
+        width: '250px',
+        data: { name: 'hoge' },
+      });
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed', result);
-    });
+      const result = await dialogRef.afterClosed().toPromise();
+      console.log(result);
+    }
+
+    this.router.navigate(['/', 'room', roomListItem.id]);
   }
 }
 
