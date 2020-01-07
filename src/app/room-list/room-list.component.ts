@@ -9,6 +9,8 @@ import { Observable } from 'rxjs';
 import { RoomListItem } from '../types/room';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { AngularFireFunctions } from '@angular/fire/functions';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-room-list',
@@ -18,14 +20,27 @@ import { Router } from '@angular/router';
 export class RoomListComponent implements OnInit {
   roomList$: Observable<RoomListItem[]>;
 
+  private enterSecureRoom: ({
+    roomId,
+    pass,
+  }: {
+    roomId: string;
+    pass: string;
+  }) => Observable<boolean>;
+
   constructor(
     public dialog: MatDialog,
     private readonly afStore: AngularFirestore,
     private readonly router: Router,
+    private readonly afFunc: AngularFireFunctions,
+    private readonly snackbar: MatSnackBar,
   ) {
-    this.roomList$ = afStore
-      .collection<RoomListItem>(`room-list`)
-      .valueChanges();
+    this.roomList$ = afStore.collection<RoomListItem>(`rooms`).valueChanges();
+
+    this.enterSecureRoom = this.afFunc.httpsCallable<
+      { roomId: string; pass: string },
+      boolean
+    >('enterSecureRoom');
   }
 
   ngOnInit() {}
@@ -37,8 +52,23 @@ export class RoomListComponent implements OnInit {
         data: { name: 'hoge' },
       });
 
-      const result = await dialogRef.afterClosed().toPromise();
-      console.log(result);
+      const pass = await dialogRef.afterClosed().toPromise();
+      console.log(pass);
+      if (!pass) {
+        return;
+      }
+
+      const success = await this.enterSecureRoom({
+        roomId: roomListItem.id,
+        pass,
+      }).toPromise();
+      console.log(success);
+      if (!success) {
+        this.snackbar.open('パスワードが間違っています。', 'close', {
+          duration: 3000,
+        });
+        return;
+      }
     }
 
     this.router.navigate(['/', 'room', roomListItem.id]);

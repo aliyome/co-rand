@@ -5,16 +5,18 @@
   },
   "hosting": {
     "public": "dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
+    ]
+  },
+  "functions": {
+    "predeploy": [
+      "yarn --ignore-engines --cwd \"$RESOURCE_DIR\" lint",
+      "yarn --ignore-engines --cwd \"$RESOURCE_DIR\" build"
     ]
   }
 }

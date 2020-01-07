@@ -15,6 +15,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
@@ -23,6 +24,10 @@ import {
   AngularFireAuthGuard,
 } from '@angular/fire/auth-guard';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import {
+  AngularFireFunctionsModule,
+  FUNCTIONS_REGION,
+} from '@angular/fire/functions';
 import { environment } from 'src/environments/environment';
 import { LoginComponent } from './login/login.component';
 import {
@@ -60,12 +65,19 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatDialogModule,
+    MatSnackBarModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     AngularFireAuthGuardModule,
     AngularFirestoreModule,
+    AngularFireFunctionsModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: FUNCTIONS_REGION,
+      useValue: 'asia-northeast1',
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
