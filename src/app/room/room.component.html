@@ -2,6 +2,11 @@
   <mat-icon aria-label="exit room">input</mat-icon> Exit Room
 </button>
 
+<button mat-raised-button color="primary" (click)="runRoulette()">
+  ルーレットを回す
+</button>
+<div>{{ current }}</div>
+
 <h2>History</h2>
 <table mat-table [dataSource]="history" style="min-width: 500px;">
   <mat-text-column name="no"></mat-text-column>

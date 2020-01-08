@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import { randomBytes } from 'crypto';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -52,4 +53,31 @@ export const exitSecureRoom = functions
     });
 
     return true;
+  });
+
+const random = () => {
+  const nBytes = 4;
+  const maxValue = 4294967295;
+  const b = randomBytes(nBytes);
+  const r = b.readUIntBE(0, nBytes);
+  const zeroToOne = r / (maxValue + 1);
+  return zeroToOne;
+};
+
+const randN = (n: number) => Math.round(random() * n);
+
+export const runRoulette = functions
+  .region('asia-northeast1')
+  .https.onCall(async (roomId: string, context) => {
+    if (!context.auth) {
+      throw Error('auth needed');
+    }
+    const rand = randN(6);
+    const ref = db.doc(`rooms/${roomId}`);
+    const history = { user: context.auth.uid, value: rand };
+    await ref.update({
+      history: admin.firestore.FieldValue.arrayUnion(history),
+    });
+
+    return rand;
   });

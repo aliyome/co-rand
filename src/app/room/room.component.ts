@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { AngularFireFunctions } from '@angular/fire/functions';
+import { Observable } from 'rxjs';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { ActivatedRoute } from '@angular/router';
 
 export interface HistoryItem {
   no: number;
@@ -22,7 +26,29 @@ export class RoomComponent implements OnInit {
 
   displayedColumns = ['no', 'name', 'value'];
 
-  constructor() {}
+  current: number;
+  private roomId: string;
+  private runRouletteFunc: (uid: string) => Observable<number>;
+
+  constructor(
+    private readonly afFunc: AngularFireFunctions,
+    private readonly afAuth: AngularFireAuth,
+    private readonly route: ActivatedRoute,
+  ) {
+    this.runRouletteFunc = afFunc.httpsCallable<string, number>('runRoulette');
+    this.route.paramMap.subscribe(x => {
+      const roomId = x.get('id');
+      if (!roomId) {
+        return;
+      }
+      this.roomId = roomId;
+    });
+  }
 
   ngOnInit() {}
+
+  async runRoulette() {
+    // HACK: 最新の値を表示するだけで十分なのでcurrentは不要かも
+    this.current = await this.runRouletteFunc(this.roomId).toPromise();
+  }
 }
