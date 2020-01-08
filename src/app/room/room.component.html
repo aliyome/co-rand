@@ -1,1 +1,13 @@
-<p>room works!</p>
+<button mat-button>
+  <mat-icon aria-label="exit room">input</mat-icon> Exit Room
+</button>
+
+<h2>History</h2>
+<table mat-table [dataSource]="history" style="min-width: 500px;">
+  <mat-text-column name="no"></mat-text-column>
+  <mat-text-column name="name"></mat-text-column>
+  <mat-text-column name="value"></mat-text-column>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>
