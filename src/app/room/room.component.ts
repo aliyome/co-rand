@@ -3,12 +3,9 @@ import { AngularFireFunctions } from '@angular/fire/functions';
 import { Observable } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { ActivatedRoute } from '@angular/router';
-
-export interface HistoryItem {
-  no: number;
-  name: string;
-  value: number;
-}
+import { AngularFirestore } from '@angular/fire/firestore';
+import { Room, History } from '../types/room';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-room',
@@ -16,15 +13,11 @@ export interface HistoryItem {
   styleUrls: ['./room.component.css'],
 })
 export class RoomComponent implements OnInit {
-  history: HistoryItem[] = [
-    { no: 1, name: 'aaa', value: 10 },
-    { no: 2, name: 'bbb', value: 20 },
-    { no: 3, name: 'cc', value: 30 },
-    { no: 4, name: 'ddd', value: 40 },
-    { no: 5, name: 'eeeeee', value: 50 },
-  ];
+  room$: Observable<Room | undefined>;
+  history$: Observable<History[] | undefined>;
+  latest$: Observable<History | undefined>;
 
-  displayedColumns = ['no', 'name', 'value'];
+  displayedColumns = ['name', 'value', 'updatedAt'];
 
   current: number;
   private roomId: string;
@@ -33,6 +26,7 @@ export class RoomComponent implements OnInit {
   constructor(
     private readonly afFunc: AngularFireFunctions,
     private readonly afAuth: AngularFireAuth,
+    private readonly afStore: AngularFirestore,
     private readonly route: ActivatedRoute,
   ) {
     this.runRouletteFunc = afFunc.httpsCallable<string, number>('runRoulette');
@@ -42,6 +36,24 @@ export class RoomComponent implements OnInit {
         return;
       }
       this.roomId = roomId;
+      this.room$ = afStore.doc<Room>(`rooms/${roomId}`).valueChanges();
+      this.history$ = this.room$.pipe(
+        map(r => (!!r ? r.history : [])),
+        map(h =>
+          h.sort((a, b) => {
+            if (!a.updatedAt || !b.updatedAt) {
+              return -1;
+            } else if (a.updatedAt > b.updatedAt) {
+              return -1;
+            } else if (a.updatedAt < b.updatedAt) {
+              return 1;
+            } else {
+              return 0;
+            }
+          }),
+        ),
+      );
+      this.latest$ = this.history$.pipe(map(r => (!!r ? r[0] : undefined)));
     });
   }
 

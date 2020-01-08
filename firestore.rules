@@ -2,11 +2,20 @@ rules_version = '2';
 service cloud.firestore {
   // ユーザー認証の関数
   function isAuthUser(auth, userId) {
-    return auth != null && auth.uid == userId // 認証があり、uidとuserIdが一致する
+    return auth != null && auth.uid == userId; // 認証があり、uidとuserIdが一致する
+  }
+  function isAuth(auth) {
+    return auth != null; // 認証があり
+  }
+  function isRoomMember(auth, roomId) {
+    return isAuth(auth) && auth.uid
   }
   match /databases/{database}/documents {
     match /users/{uid} {
       allow read, write: if isAuthUser(request.auth, uid);
+    }
+    match /rooms/{roomId} {
+      allow read: if isAuth(request.auth);
     }
   }
 }

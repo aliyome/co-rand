@@ -73,9 +73,18 @@ export const runRoulette = functions
       throw Error('auth needed');
     }
     const rand = randN(6);
-    const ref = db.doc(`rooms/${roomId}`);
-    const history = { user: context.auth.uid, value: rand };
-    await ref.update({
+    const user = await db.doc(`users/${context.auth.uid}`).get();
+    if (!user) {
+      throw Error('unknown user');
+    }
+    const roomRef = db.doc(`rooms/${roomId}`);
+    const history = {
+      user: context.auth.uid,
+      name: user.get('name'),
+      value: rand,
+      updatedAt: Date.now(),
+    };
+    await roomRef.update({
       history: admin.firestore.FieldValue.arrayUnion(history),
     });
 

@@ -6,7 +6,7 @@ import {
 } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { RoomListItem } from '../types/room';
+import { Room } from '../types/room';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { AngularFireFunctions } from '@angular/fire/functions';
@@ -18,7 +18,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./room-list.component.css'],
 })
 export class RoomListComponent implements OnInit {
-  roomList$: Observable<RoomListItem[]>;
+  roomList$: Observable<Room[]>;
 
   private enterSecureRoom: ({
     roomId,
@@ -35,7 +35,7 @@ export class RoomListComponent implements OnInit {
     private readonly afFunc: AngularFireFunctions,
     private readonly snackbar: MatSnackBar,
   ) {
-    this.roomList$ = afStore.collection<RoomListItem>(`rooms`).valueChanges();
+    this.roomList$ = afStore.collection<Room>(`rooms`).valueChanges();
 
     this.enterSecureRoom = this.afFunc.httpsCallable<
       { roomId: string; pass: string },
@@ -45,7 +45,7 @@ export class RoomListComponent implements OnInit {
 
   ngOnInit() {}
 
-  async openDialog(roomListItem: RoomListItem): Promise<void> {
+  async openDialog(roomListItem: Room): Promise<void> {
     if (roomListItem.password) {
       const dialogRef = this.dialog.open(RoomDialogComponent, {
         width: '250px',
