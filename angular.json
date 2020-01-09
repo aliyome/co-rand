@@ -123,5 +123,8 @@
       }
     }
   },
-  "defaultProject": "niji-rand"
+  "defaultProject": "niji-rand",
+  "cli": {
+    "defaultCollection": "@datorama/akita"
+  }
 }

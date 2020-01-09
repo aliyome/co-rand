@@ -28,6 +28,8 @@ import {
   RoomListComponent,
   RoomDialogComponent,
 } from './room-list/room-list.component';
+import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
+import { AkitaNgRouterStoreModule } from '@datorama/akita-ng-router-store';
 
 @NgModule({
   declarations: [
@@ -57,6 +59,8 @@ import {
     AngularFireAuthGuardModule,
     AngularFirestoreModule,
     AngularFireFunctionsModule,
+    environment.production ? [] : AkitaNgDevtools.forRoot(),
+    AkitaNgRouterStoreModule.forRoot(),
   ],
   providers: [
     {
