@@ -6,11 +6,13 @@ import {
 } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { Room } from '../types/room';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RoomQuery } from '../state/room.query';
+import { Order } from '@datorama/akita';
+import { Room } from '../state/room.model';
 
 @Component({
   selector: 'app-room-list',
@@ -24,18 +26,22 @@ export class RoomListComponent implements OnInit {
     roomId,
     pass,
   }: {
-    roomId: string;
+    roomId: number | string;
     pass: string;
   }) => Observable<boolean>;
 
   constructor(
     public dialog: MatDialog,
-    private readonly afStore: AngularFirestore,
     private readonly router: Router,
     private readonly afFunc: AngularFireFunctions,
     private readonly snackbar: MatSnackBar,
+    private readonly query: RoomQuery,
   ) {
-    this.roomList$ = afStore.collection<Room>(`rooms`).valueChanges();
+    this.roomList$ = query.selectAll({
+      limitTo: 5,
+      sortBy: 'updatedAt',
+      sortByOrder: Order.DESC,
+    });
 
     this.enterSecureRoom = this.afFunc.httpsCallable<
       { roomId: string; pass: string },

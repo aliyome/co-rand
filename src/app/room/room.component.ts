@@ -4,8 +4,9 @@ import { Observable } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { ActivatedRoute } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Room, History } from '../types/room';
-import { map } from 'rxjs/operators';
+import { map, tap, filter, share, shareReplay, publish } from 'rxjs/operators';
+import { Room, History } from '../state/room.model';
+import { RoomQuery } from '../state/room.query';
 
 @Component({
   selector: 'app-room',
@@ -13,9 +14,9 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./room.component.css'],
 })
 export class RoomComponent implements OnInit {
-  room$: Observable<Room | undefined>;
-  history$: Observable<History[] | undefined>;
-  latest$: Observable<History | undefined>;
+  room$: Observable<Room>;
+  history$: Observable<History[]>;
+  latest$: Observable<History>;
 
   displayedColumns = ['name', 'value', 'updatedAt'];
 
@@ -28,6 +29,7 @@ export class RoomComponent implements OnInit {
     private readonly afAuth: AngularFireAuth,
     private readonly afStore: AngularFirestore,
     private readonly route: ActivatedRoute,
+    private readonly query: RoomQuery,
   ) {
     this.runRouletteFunc = afFunc.httpsCallable<string, number>('runRoulette');
     this.route.paramMap.subscribe(x => {
@@ -36,11 +38,13 @@ export class RoomComponent implements OnInit {
         return;
       }
       this.roomId = roomId;
-      this.room$ = afStore.doc<Room>(`rooms/${roomId}`).valueChanges();
+      this.room$ = query.selectEntity<Room>(roomId).pipe(share());
       this.history$ = this.room$.pipe(
-        map(r => (!!r ? r.history : [])),
-        map(h =>
-          h.sort((a, b) => {
+        filter(r => !!r),
+        map(r => r.history),
+        map((h: History[]) => {
+          const dup = [...h];
+          dup.sort((a: History, b: History) => {
             if (!a.updatedAt || !b.updatedAt) {
               return -1;
             } else if (a.updatedAt > b.updatedAt) {
@@ -50,10 +54,12 @@ export class RoomComponent implements OnInit {
             } else {
               return 0;
             }
-          }),
-        ),
+          });
+          return dup;
+        }),
+        share(),
       );
-      this.latest$ = this.history$.pipe(map(r => (!!r ? r[0] : undefined)));
+      this.latest$ = this.history$.pipe(map(r => r[0]));
     });
   }
 
