@@ -4,6 +4,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AppUser } from '../types/appuser';
 import { AuthQuery } from '../state/auth.query';
+import { AuthService } from '../state/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private readonly auth: AuthQuery,
-    private readonly afAuth: AngularFireAuth,
+    private readonly authService: AuthService,
     private readonly afStore: AngularFirestore,
   ) {
     this.name = new FormControl('', [
@@ -35,12 +36,12 @@ export class LoginComponent implements OnInit {
       console.error(`ログイン済みです`);
       return;
     }
-    const userCredential = await this.afAuth.auth.signInAnonymously();
-    if (!userCredential.user) {
+    await this.authService.signIn();
+    const uid = this.auth.getValue().uid;
+    if (!uid) {
       console.error('uidが正しく取得できませんでした');
       return;
     }
-    const uid = userCredential.user.uid;
     const doc = this.afStore.doc<AppUser>(`users/${uid}`);
     doc.set({
       uid,
@@ -57,7 +58,7 @@ export class LoginComponent implements OnInit {
     const uid = this.auth.getValue().uid;
     const doc = this.afStore.doc<AppUser>(`users/${uid}`);
     await doc.delete();
-    await this.afAuth.auth.signOut();
+    await this.authService.signOut();
   }
 
   async changeName() {

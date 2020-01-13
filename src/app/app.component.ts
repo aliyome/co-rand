@@ -10,11 +10,10 @@ import { AuthService } from './state/auth.service';
 })
 export class AppComponent {
   constructor(
-    private readonly afAuth: AngularFireAuth,
     private readonly room: RoomService,
     private readonly auth: AuthService,
   ) {
     room.syncCollection().subscribe();
-    afAuth.user.subscribe(u => auth.update(u ? u.uid : null));
+    auth.sync();
   }
 }
