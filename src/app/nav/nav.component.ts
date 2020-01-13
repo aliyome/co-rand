@@ -5,6 +5,7 @@ import { map, shareReplay, filter, tap, switchMap } from 'rxjs/operators';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AppUser } from '../types/appuser';
+import { AuthQuery } from '../state/auth.query';
 
 @Component({
   selector: 'app-nav',
@@ -24,16 +25,15 @@ export class NavComponent {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private readonly afAuth: AngularFireAuth,
+    private auth: AuthQuery,
     private readonly afStore: AngularFirestore,
   ) {
-    this.user$ = afAuth.user;
-    const doc$ = afAuth.user.pipe(
-      switchMap(u => {
-        if (u === null) {
+    const doc$ = auth.select('uid').pipe(
+      switchMap(uid => {
+        if (uid === null) {
           return of(undefined);
         } else {
-          return afStore.doc<AppUser>(`users/${u.uid}`).valueChanges();
+          return afStore.doc<AppUser>(`users/${uid}`).valueChanges();
         }
       }),
     );

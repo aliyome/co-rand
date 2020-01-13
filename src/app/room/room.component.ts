@@ -26,7 +26,6 @@ export class RoomComponent implements OnInit {
 
   constructor(
     private readonly afFunc: AngularFireFunctions,
-    private readonly afAuth: AngularFireAuth,
     private readonly afStore: AngularFirestore,
     private readonly route: ActivatedRoute,
     private readonly query: RoomQuery,
