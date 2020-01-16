@@ -125,6 +125,6 @@
   },
   "defaultProject": "niji-rand",
   "cli": {
-    "defaultCollection": "@datorama/akita"
+    "defaultCollection": "@ngrx/schematics"
   }
 }

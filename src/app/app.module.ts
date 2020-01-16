@@ -19,7 +19,6 @@ import {
   AngularFireFunctionsModule,
   FUNCTIONS_REGION,
 } from '@angular/fire/functions';
-import { environment } from 'src/environments/environment';
 
 import { MaterialModule } from './material.module';
 
@@ -30,6 +29,13 @@ import {
 } from './room-list/room-list.component';
 import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 import { AkitaNgRouterStoreModule } from '@datorama/akita-ng-router-store';
+import { StoreModule } from '@ngrx/store';
+import { reducers, metaReducers } from './reducers';
+import { EffectsModule } from '@ngrx/effects';
+import { AppEffects } from './app.effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
+import { StoreRouterConnectingModule } from '@ngrx/router-store';
 
 @NgModule({
   declarations: [
@@ -61,6 +67,21 @@ import { AkitaNgRouterStoreModule } from '@datorama/akita-ng-router-store';
     AngularFireFunctionsModule,
     environment.production ? [] : AkitaNgDevtools.forRoot(),
     AkitaNgRouterStoreModule.forRoot(),
+    StoreModule.forRoot(reducers, {
+      metaReducers,
+      runtimeChecks: {
+        strictStateImmutability: true,
+        strictActionImmutability: true,
+        strictStateSerializability: !environment.production,
+        strictActionSerializability: !environment.production,
+      },
+    }),
+    EffectsModule.forRoot([AppEffects]),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25,
+      logOnly: environment.production,
+    }),
+    StoreRouterConnectingModule.forRoot(),
   ],
   providers: [
     {
