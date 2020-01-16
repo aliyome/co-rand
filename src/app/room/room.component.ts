@@ -5,8 +5,9 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { ActivatedRoute } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { map, tap, filter, share, shareReplay, publish } from 'rxjs/operators';
-import { Room, History } from '../state/room.model';
-import { RoomQuery } from '../state/room.query';
+import { Room, History } from '../store/room/room.model';
+import * as fromRoom from '../store/room/room.reducer';
+import { Store, select } from '@ngrx/store';
 
 @Component({
   selector: 'app-room',
@@ -14,7 +15,7 @@ import { RoomQuery } from '../state/room.query';
   styleUrls: ['./room.component.css'],
 })
 export class RoomComponent implements OnInit {
-  room$: Observable<Room>;
+  room$: Observable<Room | undefined>;
   history$: Observable<History[]>;
   latest$: Observable<History>;
 
@@ -28,7 +29,7 @@ export class RoomComponent implements OnInit {
     private readonly afFunc: AngularFireFunctions,
     private readonly afStore: AngularFirestore,
     private readonly route: ActivatedRoute,
-    private readonly query: RoomQuery,
+    private readonly roomStore: Store<fromRoom.State>,
   ) {
     this.runRouletteFunc = afFunc.httpsCallable<string, number>('runRoulette');
     this.route.paramMap.subscribe(x => {
@@ -36,29 +37,32 @@ export class RoomComponent implements OnInit {
       if (!roomId) {
         return;
       }
-      this.roomId = roomId;
-      this.room$ = query.selectEntity<Room>(roomId).pipe(share());
-      this.history$ = this.room$.pipe(
-        filter(r => !!r),
-        map(r => r.history),
-        map((h: History[]) => {
-          const dup = [...h];
-          dup.sort((a: History, b: History) => {
-            if (!a.updatedAt || !b.updatedAt) {
-              return -1;
-            } else if (a.updatedAt > b.updatedAt) {
-              return -1;
-            } else if (a.updatedAt < b.updatedAt) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          return dup;
-        }),
-        share(),
-      );
-      this.latest$ = this.history$.pipe(map(r => r[0]));
+      // this.roomId = roomId;
+      // this.room$ = roomStore.pipe(
+      //   select(fromRoom.selectEntity, { id: roomId }),
+      //   share(),
+      // );
+      // this.history$ = this.room$.pipe(
+      //   filter(r => !!r),
+      //   map(r => r.history),
+      //   map((h: History[]) => {
+      //     const dup = [...h];
+      //     dup.sort((a: History, b: History) => {
+      //       if (!a.updatedAt || !b.updatedAt) {
+      //         return -1;
+      //       } else if (a.updatedAt > b.updatedAt) {
+      //         return -1;
+      //       } else if (a.updatedAt < b.updatedAt) {
+      //         return 1;
+      //       } else {
+      //         return 0;
+      //       }
+      //     });
+      //     return dup;
+      //   }),
+      //   share(),
+      // );
+      // this.latest$ = this.history$.pipe(map(r => r[0]));
     });
   }
 

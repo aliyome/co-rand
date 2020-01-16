@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { AppUser } from '../types/appuser';
-import { AuthQuery } from '../state/auth.query';
-import { AuthService } from '../state/auth.service';
+import * as authSelectors from '../store/auth/auth.selectors';
+import * as authActions from '../store/auth/auth.actions';
+import * as fromAuth from '../store/auth/auth.reducer';
+import { Store, select } from '@ngrx/store';
+import { first } from 'rxjs/operators';
+import { AuthUser } from '../store/auth/auth.model';
+import { AuthService } from '../store/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +18,7 @@ export class LoginComponent implements OnInit {
   name: FormControl;
 
   constructor(
-    private readonly auth: AuthQuery,
+    private readonly authStore: Store<fromAuth.State>,
     private readonly authService: AuthService,
     private readonly afStore: AngularFirestore,
   ) {
@@ -32,17 +35,24 @@ export class LoginComponent implements OnInit {
       console.error(`名前を再入力してください`);
       return;
     }
-    if (this.auth.getValue().uid) {
+    let uid = await this.authStore
+      .pipe(first(), select(authSelectors.selectAuthUid))
+      .toPromise();
+    if (uid) {
       console.error(`ログイン済みです`);
       return;
     }
-    await this.authService.signIn();
-    const uid = this.auth.getValue().uid;
+
+    uid = await this.authService
+      .signIn()
+      .pipe(first())
+      .toPromise();
     if (!uid) {
       console.error('uidが正しく取得できませんでした');
       return;
     }
-    const doc = this.afStore.doc<AppUser>(`users/${uid}`);
+
+    const doc = this.afStore.doc<AuthUser>(`users/${uid}`);
     doc.set({
       uid,
       name: this.name.value,
@@ -51,27 +61,31 @@ export class LoginComponent implements OnInit {
   }
 
   async logout() {
-    if (!this.auth.getValue().uid) {
+    const uid = await this.authStore
+      .pipe(first(), select(authSelectors.selectAuthUid))
+      .toPromise();
+
+    if (!uid) {
       console.warn(`ログインしていないのでログアウト不要`);
       return;
     }
-    const uid = this.auth.getValue().uid;
-    const doc = this.afStore.doc<AppUser>(`users/${uid}`);
+    const doc = this.afStore.doc<AuthUser>(`users/${uid}`);
     await doc.delete();
-    await this.authService.signOut();
+
+    this.authStore.dispatch(authActions.signOut());
   }
 
   async changeName() {
-    if (!this.auth.getValue().uid) {
-      console.warn(`ログインしていないので名前は変更できません`);
-      return;
-    }
-    if (this.name.invalid) {
-      console.error(`名前を再入力してください`);
-      return;
-    }
-    const uid = this.auth.getValue().uid;
-    const doc = this.afStore.doc<AppUser>(`users/${uid}`);
-    await doc.update({ name: this.name.value });
+    // if (!this.auth.getValue().uid) {
+    //   console.warn(`ログインしていないので名前は変更できません`);
+    //   return;
+    // }
+    // if (this.name.invalid) {
+    //   console.error(`名前を再入力してください`);
+    //   return;
+    // }
+    // const uid = this.auth.getValue().uid;
+    // const doc = this.afStore.doc<AppUser>(`users/${uid}`);
+    // await doc.update({ name: this.name.value });
   }
 }

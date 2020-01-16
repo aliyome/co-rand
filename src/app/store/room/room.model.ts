@@ -1,18 +1,14 @@
 export interface Room {
-  id: number | string;
+  id: string;
   name: string;
   password?: boolean;
   history: History[];
+  createdAt?: Date;
   updatedAt?: Date;
 }
+
 export interface History {
   name: string;
   value: number;
   updatedAt?: Date;
-}
-
-export function createRoom(params: Partial<Room>) {
-  return {
-    ...params,
-  } as Room;
 }

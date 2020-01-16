@@ -5,14 +5,16 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { FormControl } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { AngularFireFunctions } from '@angular/fire/functions';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { RoomQuery } from '../state/room.query';
-import { Order } from '@datorama/akita';
-import { Room } from '../state/room.model';
+import { Room } from '../store/room/room.model';
+import * as fromRoom from '../store/room/room.reducer';
+import { Store, select } from '@ngrx/store';
+import { tap, filter } from 'rxjs/operators';
+
+import * as root from '../store';
 
 @Component({
   selector: 'app-room-list',
@@ -34,14 +36,15 @@ export class RoomListComponent implements OnInit {
     public dialog: MatDialog,
     private readonly router: Router,
     private readonly afFunc: AngularFireFunctions,
+    private readonly roomStore: Store<fromRoom.State>,
     private readonly snackbar: MatSnackBar,
-    private readonly query: RoomQuery,
   ) {
-    this.roomList$ = query.selectAll({
-      limitTo: 5,
-      sortBy: 'updatedAt',
-      sortByOrder: Order.DESC,
-    });
+    this.roomList$ = roomStore.pipe(
+      tap(console.log),
+      filter(x => !!x),
+      select(fromRoom.selectAll),
+    );
+    this.roomList$.subscribe(console.log);
 
     this.enterSecureRoom = this.afFunc.httpsCallable<
       { roomId: string; pass: string },

@@ -27,15 +27,15 @@ import {
   RoomListComponent,
   RoomDialogComponent,
 } from './room-list/room-list.component';
-import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
-import { AkitaNgRouterStoreModule } from '@datorama/akita-ng-router-store';
 import { StoreModule } from '@ngrx/store';
-import { reducers, metaReducers } from './reducers';
+import { reducers, metaReducers } from './store';
 import { EffectsModule } from '@ngrx/effects';
 import { AppEffects } from './app.effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
-import { StoreRouterConnectingModule } from '@ngrx/router-store';
+import { StoreRouterConnectingModule, RouterState } from '@ngrx/router-store';
+import { RoomEffects } from './store/room/room.effects';
+import { AuthEffects } from './store/auth/auth.effects';
 
 @NgModule({
   declarations: [
@@ -65,23 +65,23 @@ import { StoreRouterConnectingModule } from '@ngrx/router-store';
     AngularFireAuthGuardModule,
     AngularFirestoreModule,
     AngularFireFunctionsModule,
-    environment.production ? [] : AkitaNgDevtools.forRoot(),
-    AkitaNgRouterStoreModule.forRoot(),
     StoreModule.forRoot(reducers, {
       metaReducers,
       runtimeChecks: {
         strictStateImmutability: true,
         strictActionImmutability: true,
-        strictStateSerializability: !environment.production,
-        strictActionSerializability: !environment.production,
+        // strictStateSerializability: true,
+        // strictActionSerializability: true,
       },
     }),
-    EffectsModule.forRoot([AppEffects]),
+    EffectsModule.forRoot([AppEffects, RoomEffects, AuthEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: environment.production,
     }),
-    StoreRouterConnectingModule.forRoot(),
+    StoreRouterConnectingModule.forRoot({
+      routerState: RouterState.Minimal,
+    }),
   ],
   providers: [
     {
