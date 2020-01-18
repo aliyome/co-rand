@@ -3,11 +3,11 @@
     type="button"
     aria-label="Navigation back"
     mat-icon-button
-    *ngIf="false"
+    (click)="navigationBack()"
   >
     <mat-icon aria-label="Navigation back">arrow_back</mat-icon>
   </button>
-  <span style="flex: 1">co-rand</span>
+  <span style="flex: 1"><a [routerLink]="['/']">co-rand</a></span>
 
   <button
     type="button"

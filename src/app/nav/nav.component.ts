@@ -5,8 +5,16 @@ import { map, shareReplay, filter, tap, switchMap } from 'rxjs/operators';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService } from '../store/auth';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import * as fromAuth from '../store/auth';
+import * as fromRouter from '../store/router';
+import {
+  RouterState,
+  routerReducer,
+  RouterReducerState,
+} from '@ngrx/router-store';
+import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-nav',
@@ -28,6 +36,8 @@ export class NavComponent {
     private breakpointObserver: BreakpointObserver,
     private readonly afStore: AngularFirestore,
     private readonly authStore: Store<fromAuth.State>,
+    private readonly routerStore: Store<fromRouter.State>,
+    private readonly location: Location,
   ) {
     // const doc$ = auth.select('uid').pipe(
     //   switchMap(uid => {
@@ -43,5 +53,9 @@ export class NavComponent {
 
   logout() {
     this.authStore.dispatch(fromAuth.signOutAuth());
+  }
+
+  navigationBack() {
+    this.location.back();
   }
 }
