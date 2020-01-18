@@ -14,3 +14,8 @@ export const selectAuthIsLoading = createSelector(
   selectAuthState,
   (state: fromAuth.State) => state.isLoading,
 );
+
+export const selectAuthName = createSelector(
+  selectAuthState,
+  (state: fromAuth.State) => (state.user ? state.user.name : null),
+);

@@ -5,11 +5,20 @@ import {
   ofType,
   ROOT_EFFECTS_INIT,
 } from '@ngrx/effects';
-import { catchError, map, switchMapTo, switchMap, tap } from 'rxjs/operators';
+import {
+  catchError,
+  map,
+  switchMapTo,
+  switchMap,
+  tap,
+  first,
+} from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import * as AuthActions from './auth.actions';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { AuthUser } from './auth.model';
 
 @Injectable()
 export class AuthEffects {
@@ -34,9 +43,16 @@ export class AuthEffects {
       ofType(AuthActions.signInAuth),
       switchMap(async () => {
         const credential = await this.afAuth.auth.signInAnonymously();
-        return AuthActions.signInAuthSuccess({
-          user: credential.user ? { uid: credential.user.uid } : null,
-        });
+        if (!credential.user) {
+          return AuthActions.throwAuthError({ error: 'あああ' });
+        }
+        const uid = credential.user.uid;
+        const user = await this.afStore
+          .doc<AuthUser>(`users/${uid}`)
+          .valueChanges()
+          .pipe(first())
+          .toPromise();
+        return AuthActions.signInAuthSuccess({ user: user ? user : null });
       }),
       catchError(error => of(AuthActions.signInAuthFailure({ error }))),
     ),
@@ -52,5 +68,9 @@ export class AuthEffects {
     { dispatch: false },
   );
 
-  constructor(private actions$: Actions, private afAuth: AngularFireAuth) {}
+  constructor(
+    private actions$: Actions,
+    private afAuth: AngularFireAuth,
+    private afStore: AngularFirestore,
+  ) {}
 }

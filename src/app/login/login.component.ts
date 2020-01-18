@@ -4,6 +4,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import * as authSelectors from '../store/auth/auth.selectors';
 import * as authActions from '../store/auth/auth.actions';
 import * as fromAuth from '../store/auth/auth.reducer';
+import * as fromRoom from '../store/room';
 import { Store, select } from '@ngrx/store';
 import { first } from 'rxjs/operators';
 import { AuthUser } from '../store/auth/auth.model';
