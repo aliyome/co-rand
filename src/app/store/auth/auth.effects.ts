@@ -61,7 +61,7 @@ export class AuthEffects {
   signOut$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(AuthActions.signOut),
+        ofType(AuthActions.signOutAuth),
         tap(() => this.afAuth.auth.signOut()),
         catchError(error => of(AuthActions.throwAuthError({ error }))),
       ),

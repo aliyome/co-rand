@@ -23,4 +23,4 @@ export const signInAuthFailure = createAction(
   props<{ error: any }>(),
 );
 
-export const signOut = createAction('[Auth/API] SignOut Auth');
+export const signOutAuth = createAction('[Auth/API] SignOut Auth');

@@ -1,38 +1,25 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav
-    #drawer
-    class="sidenav"
-    fixedInViewport
-    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-    [mode]="(isHandset$ | async) ? 'over' : 'side'"
-    [opened]="(isHandset$ | async) === false"
+<mat-toolbar color="primary">
+  <button
+    type="button"
+    aria-label="Navigation back"
+    mat-icon-button
+    *ngIf="false"
   >
-    <mat-toolbar>ログイン情報</mat-toolbar>
+    <mat-icon aria-label="Navigation back">arrow_back</mat-icon>
+  </button>
+  <span style="flex: 1">co-rand</span>
 
-    <mat-nav-list *ngIf="userName$ | async; else nologin">
-      <a mat-list-item>{{ userName$ | async }}</a>
-      <!-- <a mat-list-item>Link 1</a>
-      <a mat-list-item>Link 2</a>
-      <a mat-list-item>Link 3</a> -->
-    </mat-nav-list>
-    <ng-template #nologin>
-      未ログイン
-    </ng-template>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button
-        type="button"
-        aria-label="Toggle sidenav"
-        mat-icon-button
-        (click)="drawer.toggle()"
-        *ngIf="isHandset$ | async"
-      >
-        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-      </button>
-      <span>co-rand</span>
-    </mat-toolbar>
-    <app-login></app-login>
-    <router-outlet></router-outlet>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  <button
+    type="button"
+    aria-label="Popup Navigation Menu"
+    mat-icon-button
+    [matMenuTriggerFor]="menu"
+  >
+    <mat-icon aria-label="Popup Navigation Menu">menu</mat-icon>
+  </button>
+
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="logout()">ログアウト</button>
+  </mat-menu>
+</mat-toolbar>
+<router-outlet></router-outlet>

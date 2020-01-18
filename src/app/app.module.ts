@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -13,6 +13,8 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import {
   AngularFireAuthGuardModule,
   AngularFireAuthGuard,
+  redirectUnauthorizedTo,
+  redirectLoggedInTo,
 } from '@angular/fire/auth-guard';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import {
@@ -36,6 +38,7 @@ import { environment } from '../environments/environment';
 import { StoreRouterConnectingModule, RouterState } from '@ngrx/router-store';
 import { RoomEffects } from './store/room/room.effects';
 import { AuthEffects } from './store/auth/auth.effects';
+import { BeforeLoginOnlyGuard } from './guards/before-login-only.guard';
 
 @NgModule({
   declarations: [
@@ -48,14 +51,29 @@ import { AuthEffects } from './store/auth/auth.effects';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot([
-      { path: '', component: RoomListComponent },
       {
-        path: 'room/:id',
-        loadChildren: () =>
-          import('./room/room.module').then(m => m.RoomModule),
+        path: '',
+        component: LoginComponent,
+        ...redirectLoggedInTo(['room']),
+        canActivate: [BeforeLoginOnlyGuard],
+      },
+      {
+        path: 'room',
+        component: RoomListComponent,
+        ...redirectUnauthorizedTo(['']),
+        // canActivate: [BeforeLoginOnlyGuard],
         canActivate: [AngularFireAuthGuard],
+        children: [
+          {
+            path: ':id',
+            loadChildren: () =>
+              import('./room/room.module').then(m => m.RoomModule),
+            canActivate: [AngularFireAuthGuard],
+          },
+        ],
       },
     ]),
     LayoutModule,

@@ -73,7 +73,7 @@ export class LoginComponent implements OnInit {
     const doc = this.afStore.doc<AuthUser>(`users/${uid}`);
     await doc.delete();
 
-    this.authStore.dispatch(authActions.signOut());
+    this.authStore.dispatch(authActions.signOutAuth());
   }
 
   async changeName() {

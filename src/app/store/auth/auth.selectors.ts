@@ -19,3 +19,8 @@ export const selectAuthName = createSelector(
   selectAuthState,
   (state: fromAuth.State) => (state.user ? state.user.name : null),
 );
+
+export const selectAuthIsInitialized = createSelector(
+  selectAuthState,
+  (state: fromAuth.State) => state.isInitialized,
+);
