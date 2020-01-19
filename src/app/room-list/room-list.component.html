@@ -1,6 +1,23 @@
-<mat-action-list *ngIf="roomList$ | async as roomList">
-  <button mat-list-item *ngFor="let r of roomList" (click)="openDialog(r)">
-    {{ r.name }}
-  </button>
-  <button mat-list-item>a</button>
-</mat-action-list>
+<mat-card *ngIf="userName$ | async as userName">
+  <mat-card-content style="display: flex; align-items: center;">
+    <p style="font-size: 1.4em;">{{ userName }}</p>
+    <div style="flex: 1;"></div>
+    <button mat-icon-button><mat-icon>edit</mat-icon></button>
+  </mat-card-content>
+</mat-card>
+<mat-card style="padding: 16px 0;">
+  <mat-nav-list *ngIf="roomList$ | async as roomList">
+    <mat-list-item *ngFor="let r of roomList" (click)="openDialog(r)">
+      <h3 mat-line>{{ r.name }}</h3>
+      <p mat-line>{{ r.name }}部屋の説明文</p>
+    </mat-list-item>
+  </mat-nav-list>
+</mat-card>
+
+<button
+  mat-fab
+  style="position: fixed; right: 16px; bottom: 16px;"
+  (click)="createRoom()"
+>
+  <mat-icon>add</mat-icon>
+</button>

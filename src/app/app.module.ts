@@ -66,14 +66,12 @@ import {
         path: 'room',
         component: RoomListComponent,
         canActivate: [LoginGuard],
-        children: [
-          {
-            path: ':id',
-            loadChildren: () =>
-              import('./room/room.module').then(m => m.RoomModule),
-            canActivate: [AngularFireAuthGuard],
-          },
-        ],
+      },
+      {
+        path: 'room/:id',
+        loadChildren: () =>
+          import('./room/room.module').then(m => m.RoomModule),
+        canActivate: [AngularFireAuthGuard],
       },
     ]),
     LayoutModule,

@@ -11,6 +11,7 @@ import { AngularFireFunctions } from '@angular/fire/functions';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Room } from '../store/room/room.model';
 import * as fromRoom from '../store/room/room.reducer';
+import * as fromAuth from '../store/auth';
 import { Store, select } from '@ngrx/store';
 import { tap, filter } from 'rxjs/operators';
 
@@ -31,12 +32,14 @@ export class RoomListComponent implements OnInit {
     roomId: number | string;
     pass: string;
   }) => Observable<boolean>;
+  userName$: Observable<string | null | undefined>;
 
   constructor(
     public dialog: MatDialog,
     private readonly router: Router,
     private readonly afFunc: AngularFireFunctions,
     private readonly roomStore: Store<fromRoom.State>,
+    private readonly authStore: Store<fromAuth.State>,
     private readonly snackbar: MatSnackBar,
   ) {
     this.roomList$ = roomStore.pipe(
@@ -44,6 +47,9 @@ export class RoomListComponent implements OnInit {
       select(fromRoom.selectAll),
     );
 
+    this.userName$ = authStore.pipe(select(fromAuth.selectAuthName));
+
+    // TODO: extract
     this.enterSecureRoom = this.afFunc.httpsCallable<
       { roomId: string; pass: string },
       boolean
@@ -78,6 +84,10 @@ export class RoomListComponent implements OnInit {
     }
 
     this.router.navigate(['/', 'room', roomListItem.id]);
+  }
+
+  createRoom() {
+    this.router.navigate(['/', 'create-room']);
   }
 }
 
