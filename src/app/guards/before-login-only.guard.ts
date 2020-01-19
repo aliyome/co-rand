@@ -50,3 +50,39 @@ export class BeforeLoginOnlyGuard implements CanActivate {
     );
   }
 }
+
+@Injectable({
+  providedIn: 'root',
+})
+export class LoginGuard implements CanActivate {
+  constructor(
+    private readonly router: Router,
+    private readonly authStore: Store<fromAuth.State>,
+    private afAuth: AngularFireAuth,
+  ) {}
+
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ):
+    | boolean
+    | UrlTree
+    | Observable<boolean | UrlTree>
+    | Promise<boolean | UrlTree> {
+    const authIsInitialized$ = this.authStore.pipe(
+      select(fromAuth.selectAuthIsInitialized),
+      filter(x => x),
+    );
+    return this.authStore.pipe(
+      skipUntil(authIsInitialized$),
+      select(fromAuth.selectAuthUid),
+      map(uid => {
+        if (uid) {
+          return true;
+        } else {
+          return this.router.parseUrl('/');
+        }
+      }),
+    );
+  }
+}

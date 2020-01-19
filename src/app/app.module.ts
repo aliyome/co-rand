@@ -38,7 +38,10 @@ import { environment } from '../environments/environment';
 import { StoreRouterConnectingModule, RouterState } from '@ngrx/router-store';
 import { RoomEffects } from './store/room/room.effects';
 import { AuthEffects } from './store/auth/auth.effects';
-import { BeforeLoginOnlyGuard } from './guards/before-login-only.guard';
+import {
+  BeforeLoginOnlyGuard,
+  LoginGuard,
+} from './guards/before-login-only.guard';
 
 @NgModule({
   declarations: [
@@ -57,14 +60,12 @@ import { BeforeLoginOnlyGuard } from './guards/before-login-only.guard';
       {
         path: '',
         component: LoginComponent,
-        ...redirectLoggedInTo(['room']),
         canActivate: [BeforeLoginOnlyGuard],
       },
       {
         path: 'room',
         component: RoomListComponent,
-        ...redirectUnauthorizedTo(['/']),
-        canActivate: [AngularFireAuthGuard],
+        canActivate: [LoginGuard],
         children: [
           {
             path: ':id',
