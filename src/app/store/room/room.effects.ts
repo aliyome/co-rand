@@ -44,27 +44,11 @@ export class RoomEffects {
           .pipe(
             tap(console.log),
             map(rooms => RoomActions.upsertRooms({ rooms })),
-            finalize(console.error),
+            catchError(error => of(RoomActions.throwRoomError({ error }))),
           );
       }),
     ),
   );
-
-  // catchError(error => of(RoomActions.throwRoomError({ error }))),
-  // repeat(),
-
-  // loadRooms$ = createEffect(() => {
-  //   return this.actions$.pipe(
-  //     ofType(RoomActions.loadRooms),
-  //     concatMap(() =>
-  //       /** An EMPTY observable only emits completion. Replace with your own observable API request */
-  //       EMPTY.pipe(
-  //         map(data => RoomActions.loadRoomsSuccess({ data })),
-  //         catchError(error => of(RoomActions.loadRoomsFailure({ error }))),
-  //       ),
-  //     ),
-  //   );
-  // });
 
   constructor(private actions$: Actions, private afStore: AngularFirestore) {}
 }

@@ -58,14 +58,13 @@ import { BeforeLoginOnlyGuard } from './guards/before-login-only.guard';
         path: '',
         component: LoginComponent,
         ...redirectLoggedInTo(['room']),
-        // canActivate: [BeforeLoginOnlyGuard],
+        canActivate: [BeforeLoginOnlyGuard],
       },
       {
         path: 'room',
         component: RoomListComponent,
         ...redirectUnauthorizedTo(['/']),
-        // canActivate: [BeforeLoginOnlyGuard],
-        // canActivate: [AngularFireAuthGuard],
+        canActivate: [AngularFireAuthGuard],
         children: [
           {
             path: ':id',
