@@ -35,3 +35,5 @@ export const signOutAuthFailure = createAction(
   '[Auth/API] SignOut Auth Failure',
   props<{ error: any }>(),
 );
+
+export const syncAuth = createAction('[Auth/API] Sync Auth');

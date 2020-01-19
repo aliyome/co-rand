@@ -13,8 +13,12 @@ import {
   tap,
   first,
   mapTo,
+  filter,
+  mergeMap,
+  mergeMapTo,
+  concatMapTo,
 } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, merge, concat } from 'rxjs';
 
 import * as AuthActions from './auth.actions';
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -32,17 +36,42 @@ export class AuthEffects {
     return this.actions$.pipe(
       ofType(ROOT_EFFECTS_INIT),
       switchMapTo(
-        this.afAuth.user.pipe(
-          map(user =>
-            AuthActions.upsertAuth({
-              user: user ? { uid: user.uid } : null,
-            }),
+        merge(
+          this.afAuth.user.pipe(
+            map(user =>
+              AuthActions.upsertAuth({
+                user: user ? { uid: user.uid } : null,
+              }),
+            ),
           ),
+          of(AuthActions.syncAuth()),
         ),
       ),
       catchError(error => of(AuthActions.throwAuthError({ error }))),
     );
   });
+
+  sync$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.syncAuth),
+      switchMapTo(
+        this.authStore.pipe(
+          select(AuthSelectors.selectAuthUid),
+          filter(uid => !!uid),
+        ),
+      ),
+      switchMap(uid =>
+        this.afStore
+          .doc<AuthUser>(`users/${uid}`)
+          .valueChanges()
+          .pipe(
+            filter(user => !!user),
+            map(user => AuthActions.upsertAuth({ user: user as AuthUser })),
+            catchError(error => of(AuthActions.throwAuthError({ error }))),
+          ),
+      ),
+    ),
+  );
 
   signInAuth$ = createEffect(() =>
     this.actions$.pipe(
