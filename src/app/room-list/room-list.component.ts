@@ -40,11 +40,9 @@ export class RoomListComponent implements OnInit {
     private readonly snackbar: MatSnackBar,
   ) {
     this.roomList$ = roomStore.pipe(
-      tap(console.log),
       filter(x => !!x),
       select(fromRoom.selectAll),
     );
-    this.roomList$.subscribe(console.log);
 
     this.enterSecureRoom = this.afFunc.httpsCallable<
       { roomId: string; pass: string },
@@ -62,7 +60,6 @@ export class RoomListComponent implements OnInit {
       });
 
       const pass = await dialogRef.afterClosed().toPromise();
-      console.log(pass);
       if (!pass) {
         return;
       }

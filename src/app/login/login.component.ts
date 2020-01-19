@@ -31,34 +31,12 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {}
 
-  async login() {
+  login() {
     if (this.name.invalid) {
       console.error(`名前を再入力してください`);
       return;
     }
-    let uid = await this.authStore
-      .pipe(first(), select(authSelectors.selectAuthUid))
-      .toPromise();
-    if (uid) {
-      console.error(`ログイン済みです`);
-      return;
-    }
-
-    uid = await this.authService
-      .signIn()
-      .pipe(first())
-      .toPromise();
-    if (!uid) {
-      console.error('uidが正しく取得できませんでした');
-      return;
-    }
-
-    const doc = this.afStore.doc<AuthUser>(`users/${uid}`);
-    doc.set({
-      uid,
-      name: this.name.value,
-    });
-    console.log(`ログインしました`);
+    this.authStore.dispatch(authActions.signInAuth({ name: this.name.value }));
   }
 
   async logout() {
@@ -70,9 +48,6 @@ export class LoginComponent implements OnInit {
       console.warn(`ログインしていないのでログアウト不要`);
       return;
     }
-    const doc = this.afStore.doc<AuthUser>(`users/${uid}`);
-    await doc.delete();
-
     this.authStore.dispatch(authActions.signOutAuth());
   }
 

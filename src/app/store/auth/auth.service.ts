@@ -14,10 +14,13 @@ import { skipUntil, filter, switchMap, switchMapTo, tap } from 'rxjs/operators';
 export class AuthService {
   constructor(private readonly authStore: Store<fromAuth.State>) {}
 
-  signIn(): Observable<string | null> {
-    this.authStore.dispatch(authActions.signInAuth());
-    const isLoading$ = this.authStore.select(authSelectors.selectAuthIsLoading);
-    const uid$ = this.authStore.select(authSelectors.selectAuthUid);
-    return uid$.pipe(skipUntil(isLoading$.pipe(filter(x => !x))));
-  }
+  // signIn(): Observable<string | null> {
+  //   this.authStore.dispatch(authActions.signInAuth());
+  //   const isNotLoading$ = this.authStore.pipe(
+  //     select(authSelectors.selectAuthIsLoading),
+  //     filter(x => !x),
+  //   );
+  //   const uid$ = this.authStore.select(authSelectors.selectAuthUid);
+  //   return uid$.pipe(skipUntil(isNotLoading$));
+  // }
 }

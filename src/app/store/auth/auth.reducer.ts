@@ -37,9 +37,18 @@ const authReducer = createReducer(
     isLoading: false,
   })),
   on(AuthActions.signOutAuth, state => ({
+    ...state,
+    isLoading: true,
+  })),
+  on(AuthActions.signOutAuthSuccess, (state, action) => ({
     user: null,
     isLoading: false,
-    isInitialized: false,
+    isInitialized: true,
+  })),
+  on(AuthActions.signOutAuthFailure, (state, action) => ({
+    ...state,
+    isLoading: false,
+    error: action.error,
   })),
 );
 

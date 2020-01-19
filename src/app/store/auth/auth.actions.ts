@@ -6,7 +6,10 @@ export const upsertAuth = createAction(
   props<{ user: AuthUser | null }>(),
 );
 
-export const signInAuth = createAction('[Auth/API] SignIn Auth');
+export const signInAuth = createAction(
+  '[Auth/API] SignIn Auth',
+  props<{ name: string }>(),
+);
 
 export const throwAuthError = createAction(
   '[Auth] Throw Auth Error',
@@ -24,3 +27,11 @@ export const signInAuthFailure = createAction(
 );
 
 export const signOutAuth = createAction('[Auth/API] SignOut Auth');
+export const signOutAuthSuccess = createAction(
+  '[Auth/API] SignOut Auth Success',
+);
+
+export const signOutAuthFailure = createAction(
+  '[Auth/API] SignOut Auth Failure',
+  props<{ error: any }>(),
+);

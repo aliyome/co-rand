@@ -50,6 +50,8 @@ export const deleteRooms = createAction(
 
 export const clearRooms = createAction('[Room/API] Clear Rooms');
 
+export const syncRooms = createAction('[Room/API] Sync Rooms');
+
 export const throwRoomError = createAction(
   '[Room] Throw Room Error',
   props<{ error: any }>(),

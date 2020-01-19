@@ -12,6 +12,9 @@ import {
   tap,
   switchMap,
   switchMapTo,
+  repeat,
+  mapTo,
+  finalize,
 } from 'rxjs/operators';
 import { EMPTY, of, Observable } from 'rxjs';
 
@@ -21,21 +24,34 @@ import { AngularFirestore } from '@angular/fire/firestore';
 
 @Injectable()
 export class RoomEffects {
+  private hoge: any;
+
   init$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ROOT_EFFECTS_INIT),
-      switchMapTo(
-        this.afStore
+      mapTo(RoomActions.syncRooms()),
+    ),
+  );
+
+  sync$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RoomActions.syncRooms),
+      switchMap(() => {
+        console.log('sync');
+        return this.afStore
           .collection<Room>('rooms')
           .valueChanges()
           .pipe(
             tap(console.log),
             map(rooms => RoomActions.upsertRooms({ rooms })),
-          ),
-      ),
-      catchError(error => of(RoomActions.throwRoomError({ error }))),
+            finalize(console.error),
+          );
+      }),
     ),
   );
+
+  // catchError(error => of(RoomActions.throwRoomError({ error }))),
+  // repeat(),
 
   // loadRooms$ = createEffect(() => {
   //   return this.actions$.pipe(

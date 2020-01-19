@@ -12,7 +12,7 @@ import {
 import { Observable } from 'rxjs';
 import { Store, select } from '@ngrx/store';
 import * as fromAuth from '../store/auth';
-import { map, filter, skipUntil } from 'rxjs/operators';
+import { map, filter, skipUntil, tap } from 'rxjs/operators';
 import { AngularFireAuth } from '@angular/fire/auth';
 
 @Injectable({
@@ -41,11 +41,10 @@ export class BeforeLoginOnlyGuard implements CanActivate {
       skipUntil(authIsInitialized$),
       select(fromAuth.selectAuthUid),
       map(uid => {
-        console.log(uid);
         if (uid) {
           return this.router.parseUrl('room');
         } else {
-          return this.router.parseUrl('');
+          return true;
         }
       }),
     );
