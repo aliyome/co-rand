@@ -22,4 +22,11 @@
     <button mat-menu-item (click)="logout()">ログアウト</button>
   </mat-menu>
 </mat-toolbar>
+<mat-card *ngIf="userName$ | async as userName">
+  <mat-card-content style="display: flex; align-items: center;">
+    <p style="font-size: 1.4em;">{{ userName }}</p>
+    <div style="flex: 1;"></div>
+    <button mat-icon-button><mat-icon>edit</mat-icon></button>
+  </mat-card-content>
+</mat-card>
 <router-outlet></router-outlet>

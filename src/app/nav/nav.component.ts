@@ -30,7 +30,7 @@ export class NavComponent {
     );
 
   user$: Observable<firebase.User | null>;
-  userName$: Observable<string>;
+  userName$: Observable<string | null | undefined>;
 
   constructor(
     private breakpointObserver: BreakpointObserver,
@@ -39,6 +39,8 @@ export class NavComponent {
     private readonly routerStore: Store<fromRouter.State>,
     private readonly location: Location,
   ) {
+    this.userName$ = authStore.pipe(select(fromAuth.selectAuthName));
+
     // const doc$ = auth.select('uid').pipe(
     //   switchMap(uid => {
     //     if (uid === null) {

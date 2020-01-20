@@ -32,7 +32,6 @@ export class RoomListComponent implements OnInit {
     roomId: number | string;
     pass: string;
   }) => Observable<boolean>;
-  userName$: Observable<string | null | undefined>;
 
   constructor(
     public dialog: MatDialog,
@@ -46,8 +45,6 @@ export class RoomListComponent implements OnInit {
       filter(x => !!x),
       select(fromRoom.selectAll),
     );
-
-    this.userName$ = authStore.pipe(select(fromAuth.selectAuthName));
 
     // TODO: extract
     this.enterSecureRoom = this.afFunc.httpsCallable<
