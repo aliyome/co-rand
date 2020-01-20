@@ -37,32 +37,31 @@ export class RoomComponent implements OnInit {
       if (!roomId) {
         return;
       }
-      // this.roomId = roomId;
-      // this.room$ = roomStore.pipe(
-      //   select(fromRoom.selectEntity, { id: roomId }),
-      //   share(),
-      // );
-      // this.history$ = this.room$.pipe(
-      //   filter(r => !!r),
-      //   map(r => r.history),
-      //   map((h: History[]) => {
-      //     const dup = [...h];
-      //     dup.sort((a: History, b: History) => {
-      //       if (!a.updatedAt || !b.updatedAt) {
-      //         return -1;
-      //       } else if (a.updatedAt > b.updatedAt) {
-      //         return -1;
-      //       } else if (a.updatedAt < b.updatedAt) {
-      //         return 1;
-      //       } else {
-      //         return 0;
-      //       }
-      //     });
-      //     return dup;
-      //   }),
-      //   share(),
-      // );
-      // this.latest$ = this.history$.pipe(map(r => r[0]));
+      this.roomId = roomId;
+      this.room$ = roomStore.pipe(
+        select(fromRoom.selectEntity, { id: roomId }),
+        shareReplay(1),
+      );
+      this.history$ = this.room$.pipe(
+        filter(r => !!r),
+        map((r: Room) => {
+          const dup = [...r.history];
+          dup.sort((a: History, b: History) => {
+            if (!a.updatedAt || !b.updatedAt) {
+              return -1;
+            } else if (a.updatedAt > b.updatedAt) {
+              return -1;
+            } else if (a.updatedAt < b.updatedAt) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+          return dup;
+        }),
+        shareReplay(1),
+      );
+      this.latest$ = this.history$.pipe(map(r => r[0]));
     });
   }
 
